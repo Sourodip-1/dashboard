@@ -1,34 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PostPipe Pinger</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Keep Alive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-  <h1>PostPipe Backend Pinger</h1>
-  <p id="status">Initializing ping...</p>
+    <h1>Server Keep Alive Bot</h1>
+    <p>Keeping <code>https://postpipe-backend.onrender.com</code> alive</p>
+    <div id="status">Status: Starting...</div>
 
-  <script>
-    const backendURL = "https://postpipe-backend.onrender.com";
+    <script>
+        const serverUrl = 'https://postpipe-backend.onrender.com';
+        const interval = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const statusElement = document.getElementById('status');
 
-    function pingBackend() {
-      fetch(backendURL)
-        .then(res => {
-          document.getElementById("status").innerText = "Last ping at: " + new Date().toLocaleTimeString();
-          console.log("Ping success:", res.status);
-        })
-        .catch(err => {
-          document.getElementById("status").innerText = "Ping failed at: " + new Date().toLocaleTimeString();
-          console.error("Ping failed:", err);
-        });
-    }
+        async function pingServer() {
+            try {
+                const response = await fetch(serverUrl, {
+                    method: 'GET',
+                    mode: 'no-cors' // Use no-cors to avoid CORS issues
+                });
+                const timestamp = new Date().toLocaleString();
+                statusElement.textContent = `Status: Ping sent at ${timestamp} - Server responded`;
+            } catch (error) {
+                const timestamp = new Date().toLocaleString();
+                statusElement.textContent = `Status: Error at ${timestamp} - ${error.message}`;
+            }
+        }
 
-    // Initial ping
-    pingBackend();
-
-    // Repeat every 10 minutes (600,000 milliseconds)
-    setInterval(pingBackend, 10 * 60 * 1000);
-  </script>
+        // Ping immediately and then every 5 minutes
+        pingServer();
+        setInterval(pingServer, interval);
+    </script>
 </body>
 </html>
